@@ -41,6 +41,11 @@ class AC_Column {
 	private $formatters;
 
 	/**
+	 * @var AC_Column_Container
+	 */
+	protected $container;
+
+	/**
 	 * @var AC_ListScreen
 	 */
 	protected $list_screen;
@@ -92,6 +97,33 @@ class AC_Column {
 		$this->type = (string) $type;
 
 		return $this;
+	}
+
+	/**
+	 * @return AC_Column_Container|false
+	 */
+	public function get_container() {
+		$this->register_container();
+
+		if ( $this->container ) {
+			$this->container->set_list_screen( $this->get_list_screen() );
+		}
+
+		return $this->container;
+	}
+
+	/**
+	 * @param AC_Column_Container $column
+	 */
+	protected function set_container( AC_Column_Container $column ) {
+		$this->container = $column;
+	}
+
+	/**
+	 * Register container
+	 */
+	public function register_container() {
+		// Overwrite in child class
 	}
 
 	/**
@@ -240,7 +272,7 @@ class AC_Column {
 	/**
 	 * @param string $id
 	 *
-	 * @return AC_Settings_Column|AC_Settings_Column_User|AC_Settings_Column_Separator|AC_Settings_Column_Label
+	 * @return AC_Settings_Column
 	 */
 	public function get_setting( $id ) {
 		return $this->get_settings()->get( $id );
@@ -268,6 +300,10 @@ class AC_Column {
 				new AC_Settings_Column_Label( $this ),
 				new AC_Settings_Column_Width( $this ),
 			);
+
+			if ( $this->get_container() ) {
+				$settings[] = $this->get_container()->get_setting_container();
+			}
 
 			foreach ( $settings as $setting ) {
 				$this->add_setting( $setting );

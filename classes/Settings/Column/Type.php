@@ -66,6 +66,11 @@ class AC_Settings_Column_Type extends AC_Settings_Column {
 		// get columns and sort them
 		foreach ( $this->column->get_list_screen()->get_column_types() as $column ) {
 
+			// skip columns that are part of a container
+			if ( $column->get_container() ) {
+				continue;
+			}
+
 			/**
 			 * @param string $group Group slug
 			 * @param AC_Column $column
@@ -114,6 +119,10 @@ class AC_Settings_Column_Type extends AC_Settings_Column {
 	 * @return string
 	 */
 	public function get_type() {
+		if ( $this->column->get_container() ) {
+			return $this->column->get_container()->get_type();
+		}
+
 		return $this->type;
 	}
 

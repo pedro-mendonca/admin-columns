@@ -295,13 +295,13 @@ function cpac_reset_columns( $ ) {
 
 		var el = $( this );
 		var select = el.find( '[data-refresh="column"]' );
-		var column_name = $( this ).attr( 'data-column-name' );
+		var column_name = el.attr( 'data-column-name' );
 		var opened = el.hasClass( 'opened' );
 
 		// Allow plugins to hook into this event
 		$( document ).trigger( 'pre_column_refresh', el );
 
-		var data = $( this ).find( ':input' ).serializeArray();
+		var data = el.find( ':input' ).serializeArray();
 		var request_data = {
 			action : 'ac_column_refresh',
 			_ajax_nonce : AC._ajax_nonce,

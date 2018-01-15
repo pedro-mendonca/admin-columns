@@ -31,4 +31,8 @@ class AC_Column_Post_AuthorName extends AC_Column {
 		$this->add_setting( new AC_Settings_Column_User( $this ) );
 	}
 
+	public function register_container() {
+		$this->set_container( new AC_Column_Post_Demo() );
+	}
+
 }

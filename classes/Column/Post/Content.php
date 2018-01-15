@@ -19,4 +19,8 @@ class AC_Column_Post_Content extends AC_Column {
 		$this->add_setting( new AC_Settings_Column_BeforeAfter( $this ) );
 	}
 
+	public function get_container() {
+		return new AC_Column_Post_Demo();
+	}
+
 }

@@ -706,15 +706,8 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 
 							<?php $this->nonce_field( 'update-type' ); ?>
 
-							<?php
+							<?php $this->display_list_screen( $list_screen ); ?>
 
-							/**
-							 * Columns
-							 */
-							foreach ( $list_screen->get_columns() as $column ) {
-								$this->display_column( $column );
-							}
-							?>
 						</form>
 
 					</div>
@@ -837,7 +830,7 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 						</td>
 						<td class="column_type">
 							<div class="inner" data-toggle="column">
-								<?php echo ac_helper()->html->strip_attributes( $column->get_label(), array( 'style', 'class' ) ); ?>
+								<?php echo ac_helper()->html->strip_attributes( $column->get_container() ? $column->get_container()->get_label() : $column->get_label(), array( 'style', 'class' ) ); ?>
 							</div>
 						</td>
 						<td class="column_edit" data-toggle="column">
@@ -877,6 +870,15 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * @param AC_ListScreen $list_screen
+	 */
+	private function display_list_screen( AC_ListScreen $list_screen ) {
+		foreach ( $list_screen->get_columns() as $column ) {
+			$this->display_column( $column );
+		}
 	}
 
 }
