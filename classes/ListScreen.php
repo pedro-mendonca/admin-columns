@@ -7,7 +7,15 @@
  */
 abstract class AC_ListScreen {
 
-	const OPTIONS_KEY = 'cpac_options_';
+	const COLUMNS_KEY = 'cpac_options_';
+
+	// TODO: original called cpac_layouts
+	const SETTINGS_KEY = 'cpac_settings_';
+
+	/**
+	 * @var string|int ID
+	 */
+	private $id;
 
 	/**
 	 * Unique Identifier for List Screen.
@@ -89,16 +97,6 @@ abstract class AC_ListScreen {
 	private $original_columns;
 
 	/**
-	 * @var string Layout ID
-	 */
-	private $layout_id;
-
-	/**
-	 * @var string Storage key used for saving column data to the database
-	 */
-	private $storage_key;
-
-	/**
 	 * @var array Column settings data
 	 */
 	private $settings;
@@ -112,6 +110,12 @@ abstract class AC_ListScreen {
 	 * @var bool
 	 */
 	private $network_only = false;
+
+	/**
+	 * @since NEWVERSION
+	 * @var AC_Rule[]
+	 */
+	private $rules;
 
 	/**
 	 * Contains the hook that contains the manage_value callback
@@ -197,39 +201,25 @@ abstract class AC_ListScreen {
 	/**
 	 * @return string
 	 */
+	// TODO: remove
 	public function get_storage_key() {
-		if ( null === $this->storage_key ) {
-			$this->set_storage_key( $this->get_key() );
-		}
-
-		return $this->storage_key;
-	}
-
-	/**
-	 * @param string $key
-	 */
-	private function set_storage_key( $key ) {
-		$this->storage_key = $key;
-
-		$this->reset();
+		return $this->key . $this->id;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function get_layout_id() {
-		return $this->layout_id;
+	public function get_id() {
+		return $this->id;
 	}
 
 	/**
-	 * @param string $layout_id
+	 * @param string $id
 	 *
-	 * @return AC_ListScreen
+	 * @return $this
 	 */
-	public function set_layout_id( $layout_id ) {
-		$this->layout_id = $layout_id;
-
-		$this->set_storage_key( $this->get_key() . $layout_id );
+	public function set_id( $id ) {
+		$this->id = $id;
 
 		return $this;
 	}
@@ -295,14 +285,14 @@ abstract class AC_ListScreen {
 	 * @return string Link
 	 */
 	public function get_screen_link() {
-		return add_query_arg( array( 'page' => $this->get_page(), 'layout' => $this->get_layout_id() ), $this->get_admin_url() );
+		return add_query_arg( array( 'page' => $this->get_page(), 'layout' => $this->get_id() ), $this->get_admin_url() );
 	}
 
 	/**
 	 * @since 2.0
 	 */
 	public function get_edit_link() {
-		return add_query_arg( array( 'list_screen' => $this->key, 'layout_id' => $this->get_layout_id() ), AC()->admin_columns_screen()->get_link() );
+		return add_query_arg( array( 'list_screen' => $this->key, 'layout_id' => $this->get_id() ), AC()->admin_columns_screen()->get_link() );
 	}
 
 	/**
@@ -675,7 +665,7 @@ abstract class AC_ListScreen {
 			$settings[ $column_name ] = array_merge( $options, $sanitized );
 		}
 
-		$result = update_option( self::OPTIONS_KEY . $this->get_storage_key(), $settings );
+		$result = update_option( self::COLUMNS_KEY . $this->get_storage_key(), $settings );
 
 		if ( ! $result ) {
 			return new WP_Error( 'same-settings' );
@@ -700,7 +690,7 @@ abstract class AC_ListScreen {
 	public function populate_settings() {
 
 		// Load from DB
-		$this->set_settings( get_option( self::OPTIONS_KEY . $this->get_storage_key() ) );
+		$this->set_settings( get_option( self::COLUMNS_KEY . $this->get_storage_key() ) );
 
 		// Load from API
 		AC()->api()->set_column_settings( $this );
@@ -734,7 +724,7 @@ abstract class AC_ListScreen {
 	 * @return string
 	 */
 	private function get_default_key() {
-		return self::OPTIONS_KEY . $this->get_key() . "__default";
+		return self::COLUMNS_KEY . $this->get_key() . "__default";
 	}
 
 	/**
@@ -775,7 +765,7 @@ abstract class AC_ListScreen {
 		 */
 		do_action( 'ac/columns_delete', $this );
 
-		return delete_option( self::OPTIONS_KEY . $this->get_storage_key() );
+		return delete_option( self::COLUMNS_KEY . $this->get_storage_key() );
 	}
 
 	/**
@@ -819,6 +809,67 @@ abstract class AC_ListScreen {
 	 * @return array
 	 */
 	public function get_default_column_headers() {
+		return array();
+	}
+
+	/**
+	 * @param array $data
+	 */
+	private function update_options( $data ) {
+		update_option( self::SETTINGS_KEY . $this->get_storage_key(), $data );
+	}
+
+	/**
+	 * @param string $name
+	 * @param mixed  $value
+	 */
+	public function update_option( $name, $value ) {
+		$data = $this->get_options();
+
+		$data[ $name ] = $value;
+
+		$this->update_options( $data );
+	}
+
+	/**
+	 * @return array
+	 */
+	private function get_options() {
+		return get_option( self::SETTINGS_KEY . $this->get_storage_key() );
+	}
+
+	/**
+	 * @param string $name
+	 *
+	 * @return false|string|array
+	 */
+	public function get_option( $name ) {
+		$options = $this->get_options();
+
+		if ( ! isset( $options[ $name ] ) ) {
+			return false;
+		}
+
+		return $options[ $name ];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_custom_label() {
+		$label = $this->get_option( 'custom_label' );
+
+		if ( ! $label ) {
+			$label = __( 'Default' );
+		}
+
+		return $label;
+	}
+
+	/**
+	 * @return AC_Rule[]
+	 */
+	public function get_rules() {
 		return array();
 	}
 

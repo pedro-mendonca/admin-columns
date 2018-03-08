@@ -42,7 +42,7 @@ final class AC_TableScreen {
 			$this->ajax_error( __( 'Invalid list screen.', 'codepress-admin-columns' ) );
 		}
 
-		$list_screen->set_layout_id( filter_input( INPUT_POST, 'layout' ) );
+		$list_screen->set_id( filter_input( INPUT_POST, 'layout' ) );
 
 		$column = $list_screen->get_column_by_name( filter_input( INPUT_POST, 'column' ) );
 
@@ -204,7 +204,7 @@ final class AC_TableScreen {
 
 		wp_localize_script( 'ac-table', 'AC', array(
 				'list_screen'  => $list_screen->get_key(),
-				'layout'       => $list_screen->get_layout_id(),
+				'layout'       => $list_screen->get_id(),
 				'column_types' => $this->get_column_types_mapping( $list_screen ),
 				'ajax_nonce'   => wp_create_nonce( 'ac-ajax' ),
 				'table_id'     => $list_screen->get_table_attr_id(),

@@ -59,7 +59,7 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 		wp_localize_script( 'ac-admin-page-columns', 'AC', array(
 			'_ajax_nonce'      => wp_create_nonce( 'ac-settings' ),
 			'list_screen'      => $list_screen->get_key(),
-			'layout'           => $list_screen->get_layout_id(),
+			'layout'           => $list_screen->get_id(),
 			'original_columns' => $list_screen->get_original_columns(),
 			'i18n'             => array(
 				'clone' => __( '%s column is already present and can not be duplicated.', 'codepress-admin-columns' ),
@@ -137,7 +137,7 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 			case 'restore_by_type' :
 				if ( $this->verify_nonce( 'restore-type' ) ) {
 					$list_screen = AC()->get_list_screen( filter_input( INPUT_POST, 'list_screen' ) );
-					$list_screen->set_layout_id( filter_input( INPUT_POST, 'layout' ) );
+					$list_screen->set_id( filter_input( INPUT_POST, 'layout' ) );
 					$list_screen->delete();
 
 					$this->notice( sprintf( __( 'Settings for %s restored successfully.', 'codepress-admin-columns' ), "<strong>" . esc_html( $this->get_list_screen_message_label( $list_screen ) ) . "</strong>" ), 'updated' );
@@ -198,7 +198,7 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 			wp_die();
 		}
 
-		$list_screen->set_layout_id( filter_input( INPUT_POST, 'layout' ) );
+		$list_screen->set_id( filter_input( INPUT_POST, 'layout' ) );
 
 		// Load default headings
 		if ( ! $list_screen->get_stored_default_headings() ) {
@@ -487,7 +487,7 @@ class AC_Admin_Page_Columns extends AC_Admin_Page {
 
 							<form class="form-reset" method="post">
 								<input type="hidden" name="list_screen" value="<?php echo esc_attr( $list_screen->get_key() ); ?>"/>
-								<input type="hidden" name="layout" value="<?php echo esc_attr( $list_screen->get_layout_id() ); ?>"/>
+								<input type="hidden" name="layout" value="<?php echo esc_attr( $list_screen->get_id() ); ?>"/>
 								<input type="hidden" name="cpac_action" value="restore_by_type"/>
 
 								<?php $this->nonce_field( 'restore-type' ); ?>
