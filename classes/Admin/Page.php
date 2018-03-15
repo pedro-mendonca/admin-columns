@@ -32,6 +32,12 @@ abstract class AC_Admin_Page {
 	public abstract function display();
 
 	/**
+	 * Register hooks
+	 */
+	public function register() {
+	}
+
+	/**
 	 * Is this the default to to display when no active page is present
 	 *
 	 * @return bool

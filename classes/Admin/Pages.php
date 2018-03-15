@@ -34,6 +34,15 @@ final class AC_Admin_Pages {
 	}
 
 	/**
+	 * Register hooks
+	 */
+	public function register() {
+		foreach ( $this->pages as $page ) {
+			$page->register();
+		}
+	}
+
+	/**
 	 * @param $slug
 	 *
 	 * @return AC_Admin_Page|false

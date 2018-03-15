@@ -14,12 +14,14 @@ class AC_Admin_Page_Settings extends AC_Admin_Page {
 			->set_label( __( 'Settings', 'codepress-admin-columns' ) );
 
 		$this->options = get_option( self::SETTINGS_NAME );
+	}
 
-		register_setting( self::SETTINGS_GROUP, self::SETTINGS_NAME );
-
+	public function register() {
 		add_filter( 'option_page_capability_' . self::SETTINGS_GROUP, array( $this, 'set_capability' ) );
 		add_action( 'admin_init', array( $this, 'handle_column_request' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+
+		register_setting( self::SETTINGS_GROUP, self::SETTINGS_NAME );
 	}
 
 	public function admin_scripts() {

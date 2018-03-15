@@ -23,15 +23,6 @@ class AC_Admin {
 	 * @since 2.0
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'set_pages' ) );
-		add_action( 'admin_menu', array( $this, 'settings_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
-	}
-
-	/**
-	 * Load pages
-	 */
-	public function set_pages() {
 		$this->pages = new AC_Admin_Pages();
 
 		$this->pages
@@ -40,7 +31,16 @@ class AC_Admin {
 			->register_page( new AC_Admin_Page_Addons() )
 			->register_page( new AC_Admin_Page_Help() );
 
-		do_action( 'ac/admin_pages', $this->pages );
+		add_action( 'init', array( $this, 'register' ) );
+		add_action( 'admin_menu', array( $this, 'settings_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_scripts' ) );
+	}
+
+	/**
+	 * Load pages
+	 */
+	public function register() {
+		$this->pages->register();
 	}
 
 	/**

@@ -24,7 +24,12 @@ abstract class AC_Rule {
 	/**
 	 * @return void
 	 */
-	abstract public function settings();
+	abstract public function render();
+
+	/**
+	 * @return string
+	 */
+	abstract public function get_description();
 
 	/**
 	 * @return string
@@ -36,7 +41,7 @@ abstract class AC_Rule {
 	 *
 	 * @return mixed
 	 */
-	protected function get_options() {
+	public function get_options() {
 		$data = $this->list_screen->get_option( 'rules' );
 
 		if ( ! isset( $data[ $this->get_key() ] ) ) {

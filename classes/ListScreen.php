@@ -112,12 +112,6 @@ abstract class AC_ListScreen {
 	private $network_only = false;
 
 	/**
-	 * @since NEWVERSION
-	 * @var AC_Rule[]
-	 */
-	private $rules;
-
-	/**
 	 * Contains the hook that contains the manage_value callback
 	 *
 	 * @return void
@@ -869,7 +863,12 @@ abstract class AC_ListScreen {
 	 * @return AC_Rule[]
 	 */
 	public function get_rules() {
-		return array();
+
+		// TODO
+		return array(
+			new ACP_Rule_Roles( $this ),
+			new ACP_Rule_Users( $this ),
+		);
 	}
 
 }

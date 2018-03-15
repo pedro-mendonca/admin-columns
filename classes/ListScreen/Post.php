@@ -61,11 +61,4 @@ class AC_ListScreen_Post extends AC_ListScreenPost {
 		$this->register_column_types_from_dir( AC()->get_plugin_dir() . 'classes/Column/Post', AC()->get_prefix() );
 	}
 
-	public function get_rules() {
-		return array(
-			new ACP_Rule_Roles( $this ),
-			new ACP_Rule_Users( $this ),
-		);
-	}
-
 }
