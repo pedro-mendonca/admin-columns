@@ -67,7 +67,7 @@ class AC_ListScreenFactory {
 
 		$list_screen = clone $types[ $type ];
 
-		$list_screen->set_layout_id( $id );
+		$list_screen->set_id( $id );
 
 		return $list_screen;
 	}
