@@ -36,13 +36,11 @@ final class AC_TableScreen {
 			$this->ajax_error( __( 'Invalid item ID.', 'codepress-admin-columns' ) );
 		}
 
-		$list_screen = AC()->get_list_screen( filter_input( INPUT_POST, 'list_screen' ) );
+		$list_screen = AC_ListScreenFactory::get_list_screen( filter_input( INPUT_POST, 'list_screen' ), filter_input( INPUT_POST, 'layout' ) );
 
 		if ( ! $list_screen ) {
 			$this->ajax_error( __( 'Invalid list screen.', 'codepress-admin-columns' ) );
 		}
-
-		$list_screen->set_id( filter_input( INPUT_POST, 'layout' ) );
 
 		$column = $list_screen->get_column_by_name( filter_input( INPUT_POST, 'column' ) );
 
@@ -195,8 +193,8 @@ final class AC_TableScreen {
 		$list_screen = $this->current_list_screen;
 
 		// Tooltip
-		wp_register_script( 'jquery-qtip2', AC()->get_plugin_url() . "external/qtip2/jquery.qtip" . AC()->minified() . ".js", array( 'jquery' ), AC()->get_version() );
-		wp_enqueue_style( 'jquery-qtip2', AC()->get_plugin_url() . "external/qtip2/jquery.qtip" . AC()->minified() . ".css", array(), AC()->get_version() );
+		wp_register_script( 'jquery-qtip2', AC()->get_plugin_url() . "external/qtip2/jquery.qtip.min.js", array( 'jquery' ), AC()->get_version() );
+		wp_enqueue_style( 'jquery-qtip2', AC()->get_plugin_url() . "external/qtip2/jquery.qtip.min.css", array(), AC()->get_version() );
 
 		// Main
 		wp_enqueue_script( 'ac-table', AC()->get_plugin_url() . "assets/js/table.js", array( 'jquery', 'jquery-qtip2' ), AC()->get_version() );
@@ -361,10 +359,17 @@ final class AC_TableScreen {
 	/**
 	 * Load current list screen
 	 *
-	 * @param WP_Screen $current_screen
+	 * @param WP_Screen $wp_screen
 	 */
-	public function load_list_screen( $current_screen ) {
-		if ( $list_screen = AC()->get_list_screen_by_wpscreen( $current_screen ) ) {
+	public function load_list_screen( $wp_screen ) {
+		foreach ( AC_ListScreenFactory::get_types() as $list_screen ) {
+			if ( $wp_screen->id !== $list_screen->get_screen_id() ) {
+				continue;
+			}
+			if ( $wp_screen->base !== $list_screen->get_screen_base() ) {
+				continue;
+			}
+
 			$this->set_current_list_screen( $list_screen );
 		}
 	}
@@ -373,7 +378,33 @@ final class AC_TableScreen {
 	 * Runs when doing Quick Edit, a native WordPress ajax call
 	 */
 	public function load_list_screen_doing_quick_edit() {
-		$this->set_current_list_screen( AC()->get_list_screen( $this->get_list_screen_when_doing_quick_edit() ) );
+		if ( AC()->is_doing_ajax() ) {
+
+			switch ( filter_input( INPUT_POST, 'action' ) ) {
+
+				// Quick edit post
+				case 'inline-save' :
+					$list_screen = filter_input( INPUT_POST, 'post_type' );
+					break;
+
+				// Adding term & Quick edit term
+				case 'add-tag' :
+				case 'inline-save-tax' :
+					$list_screen = 'wp-taxonomy_' . filter_input( INPUT_POST, 'taxonomy' );
+					break;
+
+				// Quick edit comment & Inline reply on comment
+				case 'edit-comment' :
+				case 'replyto-comment' :
+					$list_screen = 'wp-comments';
+					break;
+
+				default :
+					$list_screen = false;
+			}
+
+			$this->set_current_list_screen( AC_ListScreenFactory::get_list_screen( $list_screen ) );
+		}
 	}
 
 	/**
@@ -401,41 +432,6 @@ final class AC_TableScreen {
 		 * @param AC_ListScreen
 		 */
 		do_action( 'ac/table/list_screen', $list_screen );
-	}
-
-	/**
-	 * Is WordPress doing ajax
-	 *
-	 * @since 2.5
-	 * @return string List screen key
-	 */
-	public function get_list_screen_when_doing_quick_edit() {
-		$list_screen = false;
-
-		if ( AC()->is_doing_ajax() ) {
-
-			switch ( filter_input( INPUT_POST, 'action' ) ) {
-
-				// Quick edit post
-				case 'inline-save' :
-					$list_screen = filter_input( INPUT_POST, 'post_type' );
-					break;
-
-				// Adding term & Quick edit term
-				case 'add-tag' :
-				case 'inline-save-tax' :
-					$list_screen = 'wp-taxonomy_' . filter_input( INPUT_POST, 'taxonomy' );
-					break;
-
-				// Quick edit comment & Inline reply on comment
-				case 'edit-comment' :
-				case 'replyto-comment' :
-					$list_screen = 'wp-comments';
-					break;
-			}
-		}
-
-		return $list_screen;
 	}
 
 	/**
